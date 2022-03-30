@@ -21,6 +21,14 @@ hel%:
 .PHONY: install-dev
 install-dev: ## install development
 	pip install -e ".[test]"
+	# installing ooil tooling
+	pip install "git+https://github.com/ITISFoundation/osparc-simcore.git@master#egg=simcore-models-library&subdirectory=packages/models-library"
+	pip install "git+https://github.com/ITISFoundation/osparc-simcore.git@master#egg=simcore-service-integration&subdirectory=packages/service-integration"
+
+
+.PHONY: docker-compose.yml
+docker-compose.yml: ## (re)create docker-compose 
+	ooil compose
 
 
 .PHONY: tests
