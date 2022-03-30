@@ -1,0 +1,26 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "osparc_function_services"
+authors = [{name = "Pedro Crespo-Valero (pcrespov)"}]
+readme = "README.md"
+license = {file = "LICENSE"}
+classifiers = ["License :: OSI Approved :: MIT License"]
+dynamic = ["version", "description"]
+dependencies = [
+    "numpy",
+    "scipy",
+    "sklearn"
+]
+
+[project.urls]
+Home = "https://git.speag.com/simphony/osparc_function_services"
+
+
+[project.optional-dependencies]
+test = [
+    "pytest-sugar",
+    "pytest",
+]
