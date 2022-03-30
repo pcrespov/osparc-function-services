@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 # coding: utf-8
 #
-# does it make sense to keep both diff_or_fact and lin_or_power? 
-# we could instead have a single dB option. 
+# does it make sense to keep both diff_or_fact and lin_or_power?
+# we could instead have a single dB option.
 # code would be cleaner and there would not be asymmetry issues
 #
-
 import math
 import random
+from copy import deepcopy
+from typing import Iterator, List, Sequence, Tuple
 
 import numpy as np
 from scipy.stats import norm, uniform
@@ -102,7 +103,6 @@ def uncertainty(
     return refval, uncerts, totaluncert, totaluncertdB, sensitivities, linearities
 
 
-
 def MetropolisHastingsUncertainty(
     func, paramrefs, paramuncerts, paramuncerttypes, initcount, totalcount
 ):  # diff_or_fact
@@ -148,12 +148,70 @@ def MetropolisHastingsUncertainty(
     return [valmean, valstddev]
 
 
-
-
 def myfunc(x):
     prod = 1
     for i in x:
         prod *= i**2
     return prod
+
+
+#
+# Decomposing into service Kernels
+#
+
+def iter_sensitivity(
+    *,
+    paramrefs: List[float],
+    paramdiff: List[float],
+    diff_or_fact: bool,
+) -> Iterator[Tuple[int, List[float], List[float]]]:
+
+    assert len(paramrefs) == len(paramdiff)  # nosec
+
+    n_dims = len(paramrefs)
+
+    for i in range(n_dims):
+        paramtestplus = deepcopy(paramrefs)
+        paramtestminus = deepcopy(paramrefs)
+
+        # inc/dec one dimension at a time
+        if diff_or_fact:
+            paramtestplus[i] += paramdiff[i]
+        else:
+            paramtestplus[i] *= paramdiff[i]
+
+        if diff_or_fact:
+            paramtestminus[i] -= paramdiff[i]
+        else:
+            paramtestminus[i] /= paramdiff[i]  # check that not zero
+
+        yield (i, paramtestplus, paramtestminus)
+
+
+def linear_regression(
+    i: int, # iteration index
+    paramrefs: Sequence[float],
+    paramtestplus: Sequence[float],
+    paramtestminus: Sequence[float],
+    refval: float,
+    testvalplus: float,
+    testvalminus: float,
+    lin_or_power: bool,
+):
+    linear_regressor = LinearRegression()
+
+    x = np.array([paramrefs[i], paramtestplus[i], paramtestminus[i]]).reshape((-1, 1))
+    y = np.array([refval, testvalplus, testvalminus])
+    if not lin_or_power:
+        x = np.log(x / x[1])  # must be larger than zero
+        y = np.log(y / y[1])
+
+    model = linear_regressor.fit(x, y)
+    sensitivity = model.coef_[0]
+    linearity = model.score(x, y)
+
+    return refval, sensitivity, linearity
+
+
 
 

@@ -3,15 +3,13 @@
 # pylint: disable=unused-variable
 
 
-import math
-import random
+from typing import NamedTuple, Sequence
 
 import numpy as np
 import pytest
 from osparc_function_services.sensitivity_ua import (
-    MetropolisHastingsUncertainty, myfunc, sensitivity, uncertainty)
-from scipy.stats import norm, uniform
-from sklearn.linear_model import LinearRegression
+    MetropolisHastingsUncertainty, iter_sensitivity, linear_regression, myfunc,
+    sensitivity, uncertainty)
 
 
 @pytest.fixture
@@ -23,23 +21,35 @@ def myparamrefs():
 def myparamuncerts():
     return [0.1, 0.1, 0.5]
 
+
 @pytest.fixture
 def myparamuncerttypes():
     return ["N", "R", "N"]
+
 
 @pytest.fixture
 def diff_or_fact():
     return True
 
 
-def test_1(myparamrefs, myparamuncerts, myparamuncerttypes, diff_or_fact):
-    lin_or_power = True
+@pytest.fixture
+def lin_or_power():
+    return True
+
+
+def test_1(
+    myparamrefs, myparamuncerts, myparamuncerttypes, diff_or_fact, lin_or_power: bool
+):
 
     sensitivity(myfunc, myparamrefs, myparamuncerts, diff_or_fact, lin_or_power)
 
-
     u = uncertainty(
-        myfunc, myparamrefs, myparamuncerts, myparamuncerttypes, diff_or_fact, lin_or_power
+        myfunc,
+        myparamrefs,
+        myparamuncerts,
+        myparamuncerttypes,
+        diff_or_fact,
+        lin_or_power,
     )
 
     print("val:", u[0], "+-", u[2], "(", u[3], "dB)")
@@ -53,7 +63,12 @@ def test_2(myparamrefs, myparamuncerts, myparamuncerttypes, diff_or_fact):
 
     sensitivity(myfunc, myparamrefs, myparamuncerts, diff_or_fact, lin_or_power)
     u = uncertainty(
-        myfunc, myparamrefs, myparamuncerts, myparamuncerttypes, diff_or_fact, lin_or_power
+        myfunc,
+        myparamrefs,
+        myparamuncerts,
+        myparamuncerttypes,
+        diff_or_fact,
+        lin_or_power,
     )
 
     print("val:", u[0], "+-", u[2], "(", u[3], "dB)")
@@ -70,7 +85,12 @@ def test_3(myparamrefs, myparamuncerttypes):
 
     sensitivity(myfunc, myparamrefs, myparamuncerts, diff_or_fact, lin_or_power)
     u = uncertainty(
-        myfunc, myparamrefs, myparamuncerts, myparamuncerttypes, diff_or_fact, lin_or_power
+        myfunc,
+        myparamrefs,
+        myparamuncerts,
+        myparamuncerttypes,
+        diff_or_fact,
+        lin_or_power,
     )
 
     print("val:", u[0], "+-", u[2], "(", u[3], "dB)")
@@ -79,13 +99,17 @@ def test_3(myparamrefs, myparamuncerttypes):
     print("linearity:", u[5])
 
 
-
 def test_4(myparamrefs, myparamuncerts, myparamuncerttypes, diff_or_fact):
     lin_or_power = False
 
     sensitivity(myfunc, myparamrefs, myparamuncerts, diff_or_fact, lin_or_power)
     u = uncertainty(
-        myfunc, myparamrefs, myparamuncerts, myparamuncerttypes, diff_or_fact, lin_or_power
+        myfunc,
+        myparamrefs,
+        myparamuncerts,
+        myparamuncerttypes,
+        diff_or_fact,
+        lin_or_power,
     )
 
     print("val:", u[0], "+-", u[2], "(", u[3], "dB)")
@@ -141,6 +165,7 @@ def test_6(myparamrefs, myparamuncerts, myparamuncerttypes):
         ")",
     )
 
+
 def test_7(myparamrefs, myparamuncerts, myparamuncerttypes):
 
     MetropolisHastingsUncertainty(
@@ -148,8 +173,43 @@ def test_7(myparamrefs, myparamuncerts, myparamuncerttypes):
     )
 
 
-def test_8(myparamrefs, myparamuncerts, myparamuncerttypes):
+# helper
+class SensitivityReference(NamedTuple):
+    refval: Sequence[float]
+    sensitivites: Sequence[float]
+    linearities: Sequence[float]
 
-    MetropolisHastingsUncertainty(
-        myfunc, myparamrefs, myparamuncerts, myparamuncerttypes, 100, 100000
-    )
+
+def test_sensitivity_meta_study_pipeline(
+    myparamrefs,
+    myparamuncerts,
+    diff_or_fact: bool,
+    lin_or_power: bool,
+):
+    r = sensitivity(myfunc, myparamrefs, myparamuncerts, diff_or_fact, lin_or_power)
+    expected = SensitivityReference(*r)
+
+    refval = myfunc(myparamrefs)
+
+    for i, paramtestplus, paramtestminus in iter_sensitivity(
+        paramrefs=myparamrefs, paramdiff=myparamuncerts, diff_or_fact=diff_or_fact
+    ):
+
+        testvalplus = myfunc(paramtestplus)
+        testvalminus = myfunc(paramtestminus)
+
+        refval0, sensitivity_i, linearity_i = linear_regression(
+            i,
+            paramrefs=myparamrefs,
+            paramtestplus=paramtestplus,
+            paramtestminus=paramtestminus,
+            refval=refval,
+            testvalplus=testvalplus,
+            testvalminus=testvalminus,
+            lin_or_power=lin_or_power,
+        )
+
+        assert refval == refval0
+        assert expected.refval == refval0
+        assert expected.sensitivites[i] == sensitivity_i
+        assert expected.linearities[i] == linearity_i
