@@ -11,7 +11,7 @@ _TEMPLATE_META: Final = {
     "name": "TO_BE_DEFINED",
     "thumbnail": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Test.svg/315px-Test.svg.png",
     "description": "",
-    "key": "simcore/services/computations/TO_BE_DEFINED",
+    "key": "simcore/services/comp/TO_BE_DEFINED",
     "version": "TO_BE_DEFINED",
     "integration-version": "1.0.0",
     "type": "computational",
@@ -36,13 +36,16 @@ _TEMPLATE_META: Final = {
 MetaDict = Dict[str, Any]
 
 def _name_type(parameter_annotation):
-    if issubclass(parameter_annotation, float):
-        name = "number"
-    elif issubclass(parameter_annotation, int):
-        name = "integer"
-    elif issubclass(parameter_annotation, str):
-        name = "string"
-    else:
+    try:
+        if issubclass(parameter_annotation, float):
+            name = "number"
+        elif issubclass(parameter_annotation, int):
+            name = "integer"
+        elif issubclass(parameter_annotation, str):
+            name = "string"
+        else:
+            name = f"{parameter_annotation}".replace("typing.", "")
+    except TypeError:
         name = f"{parameter_annotation}".replace("typing.", "")
 
     return name
@@ -66,7 +69,7 @@ def validate_inputs(signature: Signature) -> Dict[str, Any]:
 
         content_schema = schema_of(
             parameter.annotation,
-            title=f"{parameter.annotation}".replace("typing.", ""),
+            title=parameter.name.capitalize(),
         )
 
         data = {
@@ -99,13 +102,14 @@ def validate_outputs(signature: Signature) -> Dict[str, Any]:
 
         for index, output_parameter in enumerate(return_args, start=1):
             name = f"out_{index}"
+            display_name = f"Out{index} {_name_type(output_parameter)}"
             data = {
-                "label": name,
+                "label": display_name,
                 "description": "",
                 "type": "ref_contentSchema",
                 "contentSchema": schema_of(
                     output_parameter,
-                    title=_name_type(output_parameter),
+                    title= display_name,
                 ),
             }
             outputs[name] = data
@@ -124,7 +128,7 @@ def create_meta(func: Callable, service_version: str) -> MetaDict:
 
     meta = deepcopy(_TEMPLATE_META)
     meta["name"] = service_name
-    meta["key"] = f"simcore/services/computations/ofs-{func.__name__}"
+    meta["key"] = f"simcore/services/comp/ofs-{func.__name__}"
     meta["version"] = service_version
     meta["inputs"] = inputs
     meta["outputs"] = outputs
