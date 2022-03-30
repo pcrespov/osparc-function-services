@@ -8,8 +8,13 @@ from typing import NamedTuple, Sequence
 import numpy as np
 import pytest
 from osparc_function_services.sensitivity_ua import (
-    MetropolisHastingsUncertainty, iter_sensitivity, linear_regression, myfunc,
-    sensitivity, uncertainty)
+    MetropolisHastingsUncertainty,
+    iter_sensitivity,
+    linear_regression,
+    myfunc,
+    sensitivity,
+    uncertainty,
+)
 
 
 @pytest.fixture

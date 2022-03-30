@@ -1,8 +1,8 @@
-import collections.abc
 import inspect
+import os
 from copy import deepcopy
 from inspect import Parameter, Signature
-from typing import Any, Callable, Dict, Final, TypedDict, get_args, get_origin
+from typing import Any, Callable, Dict, Final, Mapping, Tuple, get_args, get_origin
 
 from numpy import sign
 from pydantic.tools import schema_of
@@ -35,6 +35,7 @@ _TEMPLATE_META: Final = {
 
 MetaDict = Dict[str, Any]
 
+
 def _name_type(parameter_annotation):
     try:
         if issubclass(parameter_annotation, float):
@@ -51,9 +52,9 @@ def _name_type(parameter_annotation):
     return name
 
 
-def validate_inputs(signature: Signature) -> Dict[str, Any]:
+def validate_inputs(parameters: Mapping[str, Parameter]) -> Dict[str, Any]:
     inputs = {}
-    for parameter in signature.parameters.values():
+    for parameter in parameters.values():
         # should only allow keyword argument
         assert parameter.kind == parameter.KEYWORD_ONLY
         assert parameter.annotation != Parameter.empty
@@ -87,33 +88,42 @@ def validate_inputs(signature: Signature) -> Dict[str, Any]:
     return inputs
 
 
-def validate_outputs(signature: Signature) -> Dict[str, Any]:
-    # TODO: add extra info on outputs
+def _as_args_tuple(return_annotation: Any) -> Tuple:
+    if return_annotation == Signature.empty:
+        return tuple()
+
+    origin = get_origin(return_annotation)
+
+    if origin and origin is tuple:
+        # multiple outputs
+        return_args_types = get_args(return_annotation)
+    else:
+        # single output
+        return_args_types = (return_annotation,)
+    return return_args_types
+
+
+def validate_outputs(return_annotation: Any) -> Dict[str, Any]:
+    # TODO: add extra info on outputs?
     outputs = {}
-    if signature.return_annotation != Signature.empty:
-        origin = get_origin(signature.return_annotation)
 
-        if origin and origin is tuple:
-            # multiple outputs
-            return_args = get_args(signature.return_annotation)
-        else:
-            # single output
-            return_args = (signature.return_annotation, )
+    return_args_types = _as_args_tuple(return_annotation)
+    for index, return_type in enumerate(return_args_types, start=1):
+        name = f"out_{index}"
 
-        for index, output_parameter in enumerate(return_args, start=1):
-            name = f"out_{index}"
-            display_name = f"Out{index} {_name_type(output_parameter)}"
-            data = {
-                "label": display_name,
-                "description": "",
-                "type": "ref_contentSchema",
-                "contentSchema": schema_of(
-                    output_parameter,
-                    title= display_name,
-                ),
-            }
-            outputs[name] = data
+        display_name = f"Out{index} {_name_type(return_type)}"
+        data = {
+            "label": display_name,
+            "description": "",
+            "type": "ref_contentSchema",
+            "contentSchema": schema_of(
+                return_type,
+                title=display_name,
+            ),
+        }
+        outputs[name] = data
     return outputs
+
 
 def create_meta(func: Callable, service_version: str) -> MetaDict:
 
@@ -121,8 +131,8 @@ def create_meta(func: Callable, service_version: str) -> MetaDict:
         raise NotImplementedError(f"Cannot process function iterators as {func}")
 
     signature = inspect.signature(func)
-    inputs = validate_inputs(signature)
-    outputs = validate_outputs(signature)
+    inputs = validate_inputs(signature.parameters)
+    outputs = validate_outputs(signature.return_annotation)
 
     service_name = f"{func.__module__}.{func.__name__}"
 

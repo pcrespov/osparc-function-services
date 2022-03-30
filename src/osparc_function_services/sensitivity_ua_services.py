@@ -17,7 +17,7 @@ def sensitivity_ua_linear_regression(
     testvalplus: float,
     testvalminus: float,
     lin_or_power: bool,
-) -> Tuple[float,float, float]:
+) -> Tuple[float, float, float]:
     refval, sensitivity, linearity = linear_regression(
         i=dimension_index,
         paramrefs=paramrefs,

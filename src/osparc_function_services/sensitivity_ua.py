@@ -159,6 +159,7 @@ def myfunc(x):
 # Decomposing into service Kernels
 #
 
+
 def iter_sensitivity(
     *,
     paramrefs: List[float],
@@ -189,7 +190,7 @@ def iter_sensitivity(
 
 
 def linear_regression(
-    i: int, # iteration index
+    i: int,  # iteration index
     paramrefs: Sequence[float],
     paramtestplus: Sequence[float],
     paramtestminus: Sequence[float],
@@ -211,7 +212,3 @@ def linear_regression(
     linearity = model.score(x, y)
 
     return refval, sensitivity, linearity
-
-
-
-
