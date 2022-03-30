@@ -47,3 +47,11 @@ test-dev: # runs tests
 info: ## general info
 	pip list 
 
+.PHONY: clean clean-force
+git_clean_args = -dxf -e .vscode/ -e .venv
+clean: ## cleans all unversioned files in project and temp files create by this makefile
+	# Cleaning unversioned
+	@git clean -n $(git_clean_args)
+	@echo -n "Are you sure? [y/N] " && read ans && [ $${ans:-N} = y ]
+	@echo -n "$(shell whoami), are you REALLY sure? [y/N] " && read ans && [ $${ans:-N} = y ]
+	@git clean $(git_clean_args)
