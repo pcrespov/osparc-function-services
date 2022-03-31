@@ -14,6 +14,8 @@ install-ooil-head: ## install HEAD version of ooil (for development)
 .PHONY: docker-compose.yml
 docker-compose.yml: ## (re)create docker-compose
 	ooil compose
+	#  FIXME: until new version of OOIL includes docker-build override
+	sed -i 's/docker\/Dockerfile/Dockerfile/g' $@
 
 
 .PHONY: build shell push
