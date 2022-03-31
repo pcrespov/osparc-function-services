@@ -1,10 +1,13 @@
 import inspect
+import json
 import os
 from copy import deepcopy
 from inspect import Parameter, Signature
+from pathlib import Path
 from typing import Any, Callable, Dict, Final, Mapping, Tuple, get_args, get_origin
 
-from numpy import sign
+from pydantic import BaseModel
+from pydantic.decorator import ValidatedFunction
 from pydantic.tools import schema_of
 
 _TEMPLATE_META: Final = {
@@ -144,3 +147,50 @@ def create_meta(func: Callable, service_version: str) -> MetaDict:
     meta["outputs"] = outputs
 
     return meta
+
+
+class BaseServiceError(Exception):
+    # Osparc Service Error
+    pass
+
+
+class EnvVarNotFound(BaseServiceError):
+    pass
+
+
+class InputFileNotFound(BaseServiceError):
+    pass
+
+
+def run_as_service(service_func: Callable):
+    vfunc = ValidatedFunction(function=service_func, config=None)
+
+    # envs
+    try:
+        input_dir = Path(os.environ["INPUT_FOLDER"])
+        output_dir = Path(os.environ["OUTPUT_FOLDER"])
+    except KeyError as err:
+        raise EnvVarNotFound(
+            f"Could not find env var {err}. Should have been defined by the sidecar"
+        ) from err
+
+    # inputs
+    try:
+        inputs: BaseModel = vfunc.model.parse_file(input_dir / "inputs.json")
+
+    except FileNotFoundError as err:
+        raise InputFileNotFound(f"{err}. Should have been created by the sidecar")
+
+    # executes
+    returned_values = vfunc.execute(inputs)
+
+    # outputs
+    # TODO: verify outputs match with expected?
+    # TODO: sync name
+    if not isinstance(returned_values, tuple):
+        returned_values = (returned_values,)
+
+    outputs = {
+        f"out_{index}": value for index, value in enumerate(returned_values, start=1)
+    }
+    (output_dir / "output.json").write_text(json.dumps(outputs))

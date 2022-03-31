@@ -11,6 +11,7 @@ dependencies = [
   "pyyaml",
   "scipy",
   "sklearn",
+  "typer",
 ]
 dynamic = ["version", "description"]
 license = {file = "LICENSE"}
@@ -25,6 +26,11 @@ test = [
   "pytest-sugar",
   "pytest",
 ]
+
+[project.scripts]
+ofs = "osparc_function_services.cli:main"
+
+# TOOLS --------------
 
 [tool.isort]
 ensure_newline_before_comments = true
