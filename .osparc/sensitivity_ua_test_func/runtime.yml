@@ -1,0 +1,7 @@
+#  https://docs.docker.com/compose/compose-file/compose-file-v3/#command
+compose_spec:
+  services:
+    ofs-sensitivity_ua_test_func:
+      command:
+        - ofs
+        - test-func
