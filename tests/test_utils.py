@@ -36,7 +36,6 @@ def sidecar_setup_env(monkeypatch: MonkeyPatch, tmp_path: Path, service_func: Ca
 
 @pytest.mark.parametrize("service_func", (sensitivity_ua_test_func,))
 def test_setup_execution_teardown(service_func: Callable, sidecar_setup_env: None):
-
     input_dir = Path(os.environ["INPUT_FOLDER"])
     output_dir = Path(os.environ["OUTPUT_FOLDER"])
 
@@ -48,6 +47,9 @@ def test_setup_execution_teardown(service_func: Callable, sidecar_setup_env: Non
 
     # TODO: verify outputs match with expected?
     # TODO: sync name
+    if not isinstance(returned_values, tuple):
+        returned_values = (returned_values,)
+
     outputs = {
         f"out_{index}": value for index, value in enumerate(returned_values, start=1)
     }
