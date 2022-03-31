@@ -1,0 +1,13 @@
+.git
+.gitignore
+.osparc
+.venv
+.vscode
+**/__pycache__
+**/.env
+**/.pytest_cache
+**/.ssh
+**/coverage
+docker-compose.yml
+Dockerfile
+tests
