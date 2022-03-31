@@ -1,5 +1,7 @@
 .DEFAULT_GOAL := help
 
+REPODIR_NAME := $(basename $(CURDIR))
+
 .PHONY: help
 # thanks to https://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
 help:
@@ -46,6 +48,27 @@ test-dev: # runs tests
 .PHONY: info
 info: ## general info
 	pip list
+
+
+
+.PHONY: build shell
+build:
+	docker-compose build
+
+
+shell:
+	$(eval TMP := $(shell mktemp -d))
+	docker-compose run \
+		-u 8004 \
+		-e "INPUT_FOLDER=/inputs" \
+		-e "OUTPUT_FOLDER=/outputs" \
+		--volume $(TMP)/inputs:/inputs \
+		--volume $(TMP)/outputs:/outputs \
+		--rm \
+		ofs-sensitivity_ua_test_func bash
+	# cleanup
+	@-rm -rf $(TMP)
+
 
 .PHONY: clean clean-force
 git_clean_args = -dxf -e .vscode/ -e .venv
