@@ -1,4 +1,4 @@
-name: osparc_function_services.sensitivity_ua_services.sensitivity_ua_linear_regression
+name: ofs-sensitivity_ua_linear_regression
 thumbnail: https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Test.svg/315px-Test.svg.png
 description: ''
 key: simcore/services/comp/ofs-sensitivity_ua_linear_regression
