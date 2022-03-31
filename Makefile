@@ -1,8 +1,8 @@
 .DEFAULT_GOAL := help
 
-.PHONY: hel%
+.PHONY: help
 # thanks to https://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
-hel%:
+help:
 	@echo "usage: make [target] ..."
 	@echo ""
 	@echo "Targets for '$(notdir $(CURDIR))':"
@@ -27,7 +27,7 @@ install-dev: ## install development
 
 
 .PHONY: docker-compose.yml
-docker-compose.yml: ## (re)create docker-compose 
+docker-compose.yml: ## (re)create docker-compose
 	ooil compose
 
 
@@ -45,7 +45,7 @@ test-dev: # runs tests
 
 .PHONY: info
 info: ## general info
-	pip list 
+	pip list
 
 .PHONY: clean clean-force
 git_clean_args = -dxf -e .vscode/ -e .venv
