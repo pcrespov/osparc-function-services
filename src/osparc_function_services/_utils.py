@@ -3,10 +3,11 @@ import json
 import os
 from copy import deepcopy
 from inspect import Parameter, Signature
+from json.decoder import JSONDecodeError
 from pathlib import Path
 from typing import Any, Callable, Dict, Final, Mapping, Tuple, get_args, get_origin
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 from pydantic.decorator import ValidatedFunction
 from pydantic.tools import schema_of
 
@@ -149,42 +150,43 @@ def create_meta(func: Callable, service_version: str) -> MetaDict:
     return meta
 
 
-class BaseServiceError(Exception):
-    # Osparc Service Error
-    pass
-
-
-class EnvVarNotFound(BaseServiceError):
-    pass
-
-
-class InputFileNotFound(BaseServiceError):
-    pass
-
-
 def run_as_service(service_func: Callable):
+    # NOTE: this function is run directly from
+    #
     vfunc = ValidatedFunction(function=service_func, config=None)
 
-    # envs
+    # envs (setup by sidecar)
     try:
         input_dir = Path(os.environ["INPUT_FOLDER"])
         output_dir = Path(os.environ["OUTPUT_FOLDER"])
+
     except KeyError as err:
-        raise EnvVarNotFound(
-            f"Could not find env var {err}. Should have been defined by the sidecar"
+        raise ValueError(
+            f"Could not find env var {err}." " Should have been defined by the sidecar"
         ) from err
 
-    # inputs
+    # inputs (setup by sidecar)
+    input_file = input_dir / "inputs.json"
     try:
-        inputs: BaseModel = vfunc.model.parse_file(input_dir / "inputs.json")
+        inputs: BaseModel = vfunc.model.parse_file(input_file)
 
     except FileNotFoundError as err:
-        raise InputFileNotFound(f"{err}. Should have been created by the sidecar")
+        raise ValueError(f"{err}. Should have been created by the sidecar") from err
+
+    except JSONDecodeError as err:
+        raise ValueError(
+            f"Invalid input file ({input_file}) json format: {err}"
+        ) from err
+
+    except (ValidationError, JSONDecodeError) as err:
+        raise ValueError(
+            f"Invalid input file ({input_file}) format for {service_func.__name__}: {err}"
+        ) from err
 
     # executes
     returned_values = vfunc.execute(inputs)
 
-    # outputs
+    # outputs (expected by sidecar)
     # TODO: verify outputs match with expected?
     # TODO: sync name
     if not isinstance(returned_values, tuple):
