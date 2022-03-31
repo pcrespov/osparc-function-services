@@ -1,0 +1,4 @@
+services:
+  ofs-sensitivity_ua_test_func:
+    build:
+      dockerfile: Dockerfile

@@ -1,0 +1,4 @@
+services:
+  ofs-sensitivity_ua_linear_regression:
+    build:
+      dockerfile: Dockerfile
