@@ -1,17 +1,5 @@
 .DEFAULT_GOAL := help
 
-REPODIR_NAME := $(basename $(CURDIR))
-
-.PHONY: help
-# thanks to https://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
-help:
-	@echo "usage: make [target] ..."
-	@echo ""
-	@echo "Targets for '$(notdir $(CURDIR))':"
-	@echo ""
-	@awk --posix 'BEGIN {FS = ":.*?## "} /^[[:alpha:][:space:]_-]+:.*?## / {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
-	@echo ""
-
 
 .PHONY: .venv
 .venv:
@@ -23,14 +11,6 @@ help:
 .PHONY: install-dev
 install-dev: ## install development
 	pip install -e ".[test]"
-	# installing ooil tooling
-	pip install "git+https://github.com/ITISFoundation/osparc-simcore.git@master#egg=simcore-models-library&subdirectory=packages/models-library"
-	pip install "git+https://github.com/ITISFoundation/osparc-simcore.git@master#egg=simcore-service-integration&subdirectory=packages/service-integration"
-
-
-.PHONY: docker-compose.yml
-docker-compose.yml: ## (re)create docker-compose
-	ooil compose
 
 
 .PHONY: tests
@@ -45,10 +25,23 @@ test-dev: # runs tests
         tests
 
 
-.PHONY: info
-info: ## general info
-	pip list
+## INTEGRATION ----------------
 
+.PHONY: install-ooil-local
+install-ooil-local: ## install local-version of ooil (for development)
+	pip install -e ../osparc-simcore/packages/models-library
+	pip install -e ../osparc-simcore/packages/service-integration
+
+
+.PHONY: install-ooil-head
+install-ooil-head: ## install HEAD version of ooil (for development)
+	pip install "git+https://github.com/ITISFoundation/osparc-simcore.git@master#egg=simcore-models-library&subdirectory=packages/models-library"
+	pip install "git+https://github.com/ITISFoundation/osparc-simcore.git@master#egg=simcore-service-integration&subdirectory=packages/service-integration"
+
+
+.PHONY: docker-compose.yml
+docker-compose.yml: ## (re)create docker-compose
+	ooil compose
 
 
 .PHONY: build shell
@@ -68,6 +61,26 @@ shell:
 		ofs-sensitivity_ua_test_func bash
 	# cleanup
 	@-rm -rf $(TMP)
+
+## MISC ----------------
+.PHONY: info
+info: ## general info
+	@pip list -v
+	# integration tools
+	@-python --version
+	@-ooil --version
+	@-docker --version
+	@-docker-compose --version
+
+.PHONY: help
+# thanks to https://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
+help:
+	@echo "usage: make [target] ..."
+	@echo ""
+	@echo "Targets for '$(notdir $(CURDIR))':"
+	@echo ""
+	@awk --posix 'BEGIN {FS = ":.*?## "} /^[[:alpha:][:space:]_-]+:.*?## / {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@echo ""
 
 
 .PHONY: clean clean-force
