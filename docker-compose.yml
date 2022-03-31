@@ -18,7 +18,7 @@ services:
         io.simcore.contact: '{"contact": "crespo@itis.swiss"}'
         io.simcore.inputs: '{"inputs": {"dimension_index": {"label": "dimension_index", "description": "Dimension index", "type": "ref_contentSchema", "contentSchema": {"title": "Dimension_index", "type": "integer"}}, "paramrefs": {"label": "paramrefs", "description": "Paramrefs", "type": "ref_contentSchema", "contentSchema": {"title": "Paramrefs", "type": "array", "items": {"type": "number"}}}, "paramtestplus": {"label": "paramtestplus", "description": "Paramtestplus", "type": "ref_contentSchema", "contentSchema": {"title": "Paramtestplus", "type": "array", "items": {"type": "number"}}}, "paramtestminus": {"label": "paramtestminus", "description": "Paramtestminus", "type": "ref_contentSchema", "contentSchema": {"title": "Paramtestminus", "type": "array", "items": {"type": "number"}}}, "refval": {"label": "refval", "description": "Refval", "type": "ref_contentSchema", "contentSchema": {"title": "Refval", "type": "number"}}, "testvalplus": {"label": "testvalplus", "description": "Testvalplus", "type": "ref_contentSchema", "contentSchema": {"title": "Testvalplus", "type": "number"}}, "testvalminus": {"label": "testvalminus", "description": "Testvalminus", "type": "ref_contentSchema", "contentSchema": {"title": "Testvalminus", "type": "number"}}, "lin_or_power": {"label": "lin_or_power", "description": "Lin or power", "type": "ref_contentSchema", "contentSchema": {"title": "Lin_or_power", "type": "boolean"}}}}'
         io.simcore.outputs: '{"outputs": {"out_1": {"label": "Out1 number", "description": "", "type": "ref_contentSchema", "contentSchema": {"title": "Out1 number", "type": "number"}}, "out_2": {"label": "Out2 number", "description": "", "type": "ref_contentSchema", "contentSchema": {"title": "Out2 number", "type": "number"}}, "out_3": {"label": "Out3 number", "description": "", "type": "ref_contentSchema", "contentSchema": {"title": "Out3 number", "type": "number"}}}}'
-        simcore.service.compose-spec: '{"services": {"ofs-sensitivity_ua_linear_regression": {"command": ["ofs", "linear-regression"]}}}'
+        simcore.service.settings: '[{"name": "Cmd", "type": "array", "value": ["ofs", "linear-regression"]}]'
     image: registry:5000/simcore/services/comp/ofs-sensitivity_ua_linear_regression:1.0.0
   ofs-sensitivity_ua_test_func:
     build:
@@ -38,5 +38,5 @@ services:
         io.simcore.contact: '{"contact": "crespo@itis.swiss"}'
         io.simcore.inputs: '{"inputs": {"x": {"label": "x", "description": "X", "type": "ref_contentSchema", "contentSchema": {"title": "X", "type": "array", "items": {"type": "number"}}}}}'
         io.simcore.outputs: '{"outputs": {"out_1": {"label": "Out1 number", "description": "", "type": "ref_contentSchema", "contentSchema": {"title": "Out1 number", "type": "number"}}}}'
-        simcore.service.compose-spec: '{"services": {"ofs-sensitivity_ua_test_func": {"command": ["ofs", "test-func"]}}}'
+        simcore.service.settings: '[{"name": "Cmd", "type": "array", "value": ["ofs", "test-func"]}]'
     image: registry:5000/simcore/services/comp/ofs-sensitivity_ua_test_func:1.0.0
