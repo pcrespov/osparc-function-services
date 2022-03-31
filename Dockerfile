@@ -1,10 +1,19 @@
 FROM python:3.8.10-slim as base
 
-RUN addgroup --gid 1001 --system app && \
-    adduser --no-create-home --shell /bin/false --disabled-password --uid 1001 --system --group app
+ARG VERSION
 
+# TODO: limitation imposed by osparc!
+ENV SC_USER_ID 8004
+ENV SC_USER_NAME app
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
+
+
+RUN addgroup --gid ${SC_USER_ID} --system app && \
+    adduser --no-create-home --shell /bin/false --disabled-password --uid ${SC_USER_ID} --system --group app
+
+
+FROM base as builder
 
 
 RUN apt-get update && \
@@ -16,16 +25,24 @@ RUN apt-get update && \
 
 WORKDIR /build
 
-COPY --chown=${SC_USER_NAME}:${SC_USER_NAME} . .
+COPY --chown=app:app README.md pyproject.toml /build/
+COPY --chown=app:app src  /build/src
 
-RUN pip --no-cache install --upgrade \
+
+RUN pip --no-cache-dir install --upgrade \
     pip \
     setuptools \
     wheel \
-    && pip --no-cache install --use-feature=in-tree-build  .
+    && pip --no-cache-dir wheel --wheel-dir=/build/wheels /build/
 
-#&& pip --no-cache install "git+https://github.com/ITISFoundation/osparc-simcore.git@master#egg=simcore-models-library&subdirectory=packages/models-library" \
-#&& pip --no-cache install "git+https://github.com/ITISFoundation/osparc-simcore.git@master#egg=simcore-service-integration&subdirectory=packages/service-integration"
 
+FROM base as production
+
+COPY --from=builder --chown=app:app /build/wheels /wheels
+
+RUN pip --no-cache-dir install --upgrade pip \
+    && pip --no-cache-dir install /wheels/* \
+    && rm -rf /wheels
 
 USER app
+WORKDIR /app
