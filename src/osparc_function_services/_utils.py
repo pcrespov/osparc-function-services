@@ -11,6 +11,8 @@ from pydantic import BaseModel, ValidationError
 from pydantic.decorator import ValidatedFunction
 from pydantic.tools import schema_of
 
+# FIXME: name and key seem to be the same??!
+_PACKAGE_NAME: Final =  "ofs" # __name__.split(".")[0]
 _TEMPLATE_META: Final = {
     "name": "TO_BE_DEFINED",
     "thumbnail": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Test.svg/315px-Test.svg.png",
@@ -138,7 +140,7 @@ def create_meta(func: Callable, service_version: str) -> MetaDict:
     inputs = validate_inputs(signature.parameters)
     outputs = validate_outputs(signature.return_annotation)
 
-    service_name = f"{func.__module__}.{func.__name__}"
+    service_name = f"{_PACKAGE_NAME}-{func.__name__}"
 
     meta = deepcopy(_TEMPLATE_META)
     meta["name"] = service_name
