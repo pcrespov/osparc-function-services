@@ -1,0 +1,30 @@
+name: osparc_function_services.sensitivity_ua_services.sensitivity_ua_test_func
+thumbnail: https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Test.svg/315px-Test.svg.png
+description: ''
+key: simcore/services/comp/ofs-sensitivity_ua_test_func
+version: 1.0.0
+integration-version: 1.0.0
+type: computational
+authors:
+- name: Pedro Crespo-Valero
+  email: crespo@itis.swiss
+  affiliation: IT'IS Foundation
+contact: crespo@itis.swiss
+inputs:
+  x:
+    label: x
+    description: X
+    type: ref_contentSchema
+    contentSchema:
+      title: X
+      type: array
+      items:
+        type: number
+outputs:
+  out_1:
+    label: Out1 number
+    description: ''
+    type: ref_contentSchema
+    contentSchema:
+      title: Out1 number
+      type: number

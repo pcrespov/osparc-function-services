@@ -1,0 +1,97 @@
+name: osparc_function_services.sensitivity_ua_services.sensitivity_ua_linear_regression
+thumbnail: https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Test.svg/315px-Test.svg.png
+description: ''
+key: simcore/services/comp/ofs-sensitivity_ua_linear_regression
+version: 1.0.0
+integration-version: 1.0.0
+type: computational
+authors:
+- name: Pedro Crespo-Valero
+  email: crespo@itis.swiss
+  affiliation: IT'IS Foundation
+contact: crespo@itis.swiss
+inputs:
+  dimension_index:
+    label: dimension_index
+    description: Dimension index
+    type: ref_contentSchema
+    contentSchema:
+      title: Dimension_index
+      type: integer
+  paramrefs:
+    label: paramrefs
+    description: Paramrefs
+    type: ref_contentSchema
+    contentSchema:
+      title: Paramrefs
+      type: array
+      items:
+        type: number
+  paramtestplus:
+    label: paramtestplus
+    description: Paramtestplus
+    type: ref_contentSchema
+    contentSchema:
+      title: Paramtestplus
+      type: array
+      items:
+        type: number
+  paramtestminus:
+    label: paramtestminus
+    description: Paramtestminus
+    type: ref_contentSchema
+    contentSchema:
+      title: Paramtestminus
+      type: array
+      items:
+        type: number
+  refval:
+    label: refval
+    description: Refval
+    type: ref_contentSchema
+    contentSchema:
+      title: Refval
+      type: number
+  testvalplus:
+    label: testvalplus
+    description: Testvalplus
+    type: ref_contentSchema
+    contentSchema:
+      title: Testvalplus
+      type: number
+  testvalminus:
+    label: testvalminus
+    description: Testvalminus
+    type: ref_contentSchema
+    contentSchema:
+      title: Testvalminus
+      type: number
+  lin_or_power:
+    label: lin_or_power
+    description: Lin or power
+    type: ref_contentSchema
+    contentSchema:
+      title: Lin_or_power
+      type: boolean
+outputs:
+  out_1:
+    label: Out1 number
+    description: ''
+    type: ref_contentSchema
+    contentSchema:
+      title: Out1 number
+      type: number
+  out_2:
+    label: Out2 number
+    description: ''
+    type: ref_contentSchema
+    contentSchema:
+      title: Out2 number
+      type: number
+  out_3:
+    label: Out3 number
+    description: ''
+    type: ref_contentSchema
+    contentSchema:
+      title: Out3 number
+      type: number
