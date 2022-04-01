@@ -1,4 +1,5 @@
+# see https://shipyard.run/docs/resources/container/#command
 settings:
-  - name: Cmd
-    type: array
+  - name: command
+    type: "[]string"
     value: ["ofs", "linear-regression"]

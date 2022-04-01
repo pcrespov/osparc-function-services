@@ -39,6 +39,7 @@ RUN pip --no-cache-dir install --upgrade \
 FROM base as production
 
 COPY --from=builder --chown=app:app /build/wheels /wheels
+COPY --chown=app:app docker/entrypoint.sh entrypoint.sh
 
 RUN pip --no-cache-dir install --upgrade pip \
     && pip --no-cache-dir install /wheels/* \
@@ -46,3 +47,5 @@ RUN pip --no-cache-dir install --upgrade pip \
 
 USER app
 WORKDIR /app
+
+ENTRYPOINT [ "entrypoint.sh" ]
