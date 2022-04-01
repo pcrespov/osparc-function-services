@@ -1,4 +1,5 @@
 import json
+from optparse import Option
 import os
 from json.decoder import JSONDecodeError
 from pathlib import Path
@@ -15,7 +16,7 @@ class Settings(BaseSettings):
     # envs setup by sidecar
     INPUT_FOLDER: Path
     OUTPUT_FOLDER: Path
-    LOG_FOLDER: Path
+    LOG_FOLDER: Optional[Path] = None
 
     SC_BUILD_TARGET: Optional[str] = None
     SC_COMP_SERVICES_SCHEDULED_AS: Optional[str] = None
