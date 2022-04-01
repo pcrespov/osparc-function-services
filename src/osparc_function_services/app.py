@@ -6,7 +6,7 @@ from typing import (
     Callable,
     Optional,
 )
-from ._utils import log
+from . import log
 from pydantic import BaseModel, BaseSettings, ValidationError, validator
 from pydantic.decorator import ValidatedFunction
 

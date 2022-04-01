@@ -1,5 +1,4 @@
 import inspect
-import logging
 from copy import deepcopy
 from inspect import Parameter, Signature
 from typing import (
@@ -44,10 +43,6 @@ _TEMPLATE_META: Final = {
 #    description: str
 
 MetaDict = Dict[str, Any]
-
-
-log = logging.getLogger(_PACKAGE_NAME)
-logging.basicConfig(log_level=logging.INFO)
 
 
 def _name_type(parameter_annotation):
