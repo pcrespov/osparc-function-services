@@ -19,11 +19,11 @@ docker-compose.yml: ## (re)create docker-compose
 
 
 .PHONY: build shell push
-build:
+build: ## docker-compose build
 	docker-compose build
 
 
-shell:
+shell: ## docker-compose run ... bash
 	$(eval TMP := $(shell mktemp -d))
 	docker-compose run \
 		-u 8004 \
@@ -37,5 +37,5 @@ shell:
 	@-rm -rf $(TMP)
 
 
-push:
+push: ## docker-compose push (to registry:5000)
 	docker-compose push
