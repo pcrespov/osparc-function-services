@@ -23,8 +23,9 @@ build: ## docker-compose build
 
 shell: ## docker-compose run ... bash
 	$(eval TMP := $(shell mktemp -d))
+	mkdir -p $(TMP)/inputs
+	mkdir -p $(TMP)/outputs
 	docker-compose run \
-		-u 8004 \
 		-e "INPUT_FOLDER=/inputs" \
 		-e "OUTPUT_FOLDER=/outputs" \
 		--volume $(TMP)/inputs:/inputs \
@@ -32,7 +33,7 @@ shell: ## docker-compose run ... bash
 		--rm \
 		ofs-sensitivity_ua_test_func bash
 	# cleanup
-	@-rm -rf $(TMP)
+	# @-rm -rf $(TMP)
 
 
 push: ## docker-compose push (to registry:5000)

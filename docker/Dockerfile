@@ -5,14 +5,23 @@ ARG VERSION
 # TODO: limitation imposed by osparc!
 ENV SC_USER_ID 8004
 ENV SC_USER_NAME app
+
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
+
+
+RUN set -eux && \
+    apt-get update && \
+    apt-get install -y gosu && \
+    rm -rf /var/lib/apt/lists/* && \
+    # verify that the binary works
+    gosu nobody true
 
 
 RUN addgroup --gid ${SC_USER_ID} --system app && \
     adduser --no-create-home --shell /bin/false --disabled-password --uid ${SC_USER_ID} --system --group app
 
-
+#-------------------------------------------------------------------------------------------------
 FROM base as builder
 
 
@@ -35,17 +44,19 @@ RUN pip --no-cache-dir install --upgrade \
     wheel \
     && pip --no-cache-dir wheel --wheel-dir=/build/wheels /build/
 
-
+#-------------------------------------------------------------------------------------------------
 FROM base as production
+ENV SC_BUILD_TARGET production
+
 
 COPY --from=builder --chown=app:app /build/wheels /wheels
-COPY --chown=app:app docker/entrypoint.sh entrypoint.sh
-
 RUN pip --no-cache-dir install --upgrade pip \
     && pip --no-cache-dir install /wheels/* \
     && rm -rf /wheels
 
-USER app
+COPY --chown=app:app docker/entrypoint.sh /app/entrypoint.sh
+
 WORKDIR /app
 
-ENTRYPOINT [ "entrypoint.sh" ]
+# starts as root but switches to app at the entrypoint
+ENTRYPOINT [ "/bin/sh", "/app/entrypoint.sh" ]
