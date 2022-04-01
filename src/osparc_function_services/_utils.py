@@ -1,18 +1,29 @@
 import inspect
 import json
+import logging
 import os
 from copy import deepcopy
 from inspect import Parameter, Signature
 from json.decoder import JSONDecodeError
 from pathlib import Path
-from typing import Any, Callable, Dict, Final, Mapping, Tuple, get_args, get_origin
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Final,
+    Mapping,
+    Optional,
+    Tuple,
+    get_args,
+    get_origin,
+)
 
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, BaseSettings, ValidationError, validator
 from pydantic.decorator import ValidatedFunction
 from pydantic.tools import schema_of
 
 # FIXME: name and key seem to be the same??!
-_PACKAGE_NAME: Final =  "ofs" # __name__.split(".")[0]
+_PACKAGE_NAME: Final = "ofs"  # __name__.split(".")[0]
 _TEMPLATE_META: Final = {
     "name": "TO_BE_DEFINED",
     "thumbnail": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Test.svg/315px-Test.svg.png",
@@ -40,6 +51,9 @@ _TEMPLATE_META: Final = {
 #    description: str
 
 MetaDict = Dict[str, Any]
+
+
+log = logging.getLogger(_PACKAGE_NAME)
 
 
 def _name_type(parameter_annotation):
@@ -152,38 +166,68 @@ def create_meta(func: Callable, service_version: str) -> MetaDict:
     return meta
 
 
+class Settings(BaseSettings):
+    # envs setup by sidecar
+    INPUT_FOLDER: Path
+    OUTPUT_FOLDER: Path
+    LOG_FOLDER: Path
+
+    SC_COMP_SERVICES_SCHEDULED_AS: Optional[str] = None
+    SIMCORE_NANO_CPUS_LIMIT: Optional[int] = None
+    SIMCORE_MEMORY_BYTES_LIMIT: Optional[int] = None
+
+    @validator("INPUT_FOLDER", "OUTPUT_FOLDER", "LOG_FOLDER")
+    def check_dir_existance(cls, v):
+        if not v.exists():
+            raise ValueError(
+                f"Folder {v} does not exists."
+                "Expected predefined and created by sidecar"
+            )
+        return v
+
+    @validator("INPUT_FOLDER")
+    def check_input_dir(cls, v: Path):
+        f = v / "inputs.json"
+        if not f.exists():
+            raise ValueError(
+                f"File {f} does not exists."
+                "Expected predefined and created by sidecar"
+            )
+        return v
+
+    @validator("OUTPUT_FOLDER")
+    def check_output_dir(cls, v: Path):
+        if not os.access(v, os.W_OK):
+            raise ValueError(f"Do not have write access to {v}: {v.stat()}")
+        return v
+
+    @property
+    def input_file(self) -> Path:
+        return self.INPUT_FOLDER / "inputs.json"
+
+    @property
+    def output_file(self) -> Path:
+        return self.OUTPUT_FOLDER / "outputs.json"
+
+
 def run_as_service(service_func: Callable):
-    # NOTE: this function is run directly from
-    #
+
     vfunc = ValidatedFunction(function=service_func, config=None)
 
-    # envs (setup by sidecar)
+    # envs and inputs (setup by sidecar)
     try:
-        input_dir = Path(os.environ["INPUT_FOLDER"])
-        output_dir = Path(os.environ["OUTPUT_FOLDER"])
+        settings = Settings()
+        log.info("Settings setup by sidecar", settings.json(indent=1))
 
-    except KeyError as err:
-        raise ValueError(
-            f"Could not find env var {err}." " Should have been defined by the sidecar"
-        ) from err
-
-    # inputs (setup by sidecar)
-    input_file = input_dir / "inputs.json"
-    try:
-        inputs: BaseModel = vfunc.model.parse_file(input_file)
-
-    except FileNotFoundError as err:
-        raise ValueError(f"{err}. Should have been created by the sidecar") from err
+        inputs: BaseModel = vfunc.model.parse_file(settings.input_file)
 
     except JSONDecodeError as err:
         raise ValueError(
-            f"Invalid input file ({input_file}) json format: {err}"
+            f"Invalid input file ({settings.input_file}) json format: {err}"
         ) from err
 
-    except (ValidationError, JSONDecodeError) as err:
-        raise ValueError(
-            f"Invalid input file ({input_file}) format for {service_func.__name__}: {err}"
-        ) from err
+    except ValidationError as err:
+        raise ValueError(f"Invalid inputs for {service_func.__name__}: {err}") from err
 
     # executes
     returned_values = vfunc.execute(inputs)
@@ -197,4 +241,4 @@ def run_as_service(service_func: Callable):
     outputs = {
         f"out_{index}": value for index, value in enumerate(returned_values, start=1)
     }
-    (output_dir / "output.json").write_text(json.dumps(outputs))
+    settings.output_file.write_text(json.dumps(outputs))
