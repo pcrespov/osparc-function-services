@@ -74,4 +74,4 @@ echo "$INFO" " HOST_USERID=${HOST_USERID}"
 echo "$INFO" " HOST_GROUPID=${HOST_GROUPID}"
 echo "$INFO" " CONTAINER_GROUP=${CONTAINER_GROUP}"
 
-exec gosu "$SC_USER_NAME" "$*"
+exec gosu "$SC_USER_NAME" "$@"
