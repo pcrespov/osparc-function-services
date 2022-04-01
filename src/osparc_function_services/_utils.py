@@ -1,25 +1,18 @@
 import inspect
-import json
 import logging
-import os
 from copy import deepcopy
 from inspect import Parameter, Signature
-from json.decoder import JSONDecodeError
-from pathlib import Path
 from typing import (
     Any,
     Callable,
     Dict,
     Final,
     Mapping,
-    Optional,
     Tuple,
     get_args,
     get_origin,
 )
 
-from pydantic import BaseModel, BaseSettings, ValidationError, validator
-from pydantic.decorator import ValidatedFunction
 from pydantic.tools import schema_of
 
 # FIXME: name and key seem to be the same??!
@@ -54,6 +47,7 @@ MetaDict = Dict[str, Any]
 
 
 log = logging.getLogger(_PACKAGE_NAME)
+logging.basicConfig(log_level=logging.INFO)
 
 
 def _name_type(parameter_annotation):
@@ -164,81 +158,3 @@ def create_meta(func: Callable, service_version: str) -> MetaDict:
     meta["outputs"] = outputs
 
     return meta
-
-
-class Settings(BaseSettings):
-    # envs setup by sidecar
-    INPUT_FOLDER: Path
-    OUTPUT_FOLDER: Path
-    LOG_FOLDER: Path
-
-    SC_COMP_SERVICES_SCHEDULED_AS: Optional[str] = None
-    SIMCORE_NANO_CPUS_LIMIT: Optional[int] = None
-    SIMCORE_MEMORY_BYTES_LIMIT: Optional[int] = None
-
-    @validator("INPUT_FOLDER", "OUTPUT_FOLDER", "LOG_FOLDER")
-    def check_dir_existance(cls, v):
-        if not v.exists():
-            raise ValueError(
-                f"Folder {v} does not exists."
-                "Expected predefined and created by sidecar"
-            )
-        return v
-
-    @validator("INPUT_FOLDER")
-    def check_input_dir(cls, v: Path):
-        f = v / "inputs.json"
-        if not f.exists():
-            raise ValueError(
-                f"File {f} does not exists."
-                "Expected predefined and created by sidecar"
-            )
-        return v
-
-    @validator("OUTPUT_FOLDER")
-    def check_output_dir(cls, v: Path):
-        if not os.access(v, os.W_OK):
-            raise ValueError(f"Do not have write access to {v}: {v.stat()}")
-        return v
-
-    @property
-    def input_file(self) -> Path:
-        return self.INPUT_FOLDER / "inputs.json"
-
-    @property
-    def output_file(self) -> Path:
-        return self.OUTPUT_FOLDER / "outputs.json"
-
-
-def run_as_service(service_func: Callable):
-
-    vfunc = ValidatedFunction(function=service_func, config=None)
-
-    # envs and inputs (setup by sidecar)
-    try:
-        settings = Settings()
-        log.info("Settings setup by sidecar", settings.json(indent=1))
-
-        inputs: BaseModel = vfunc.model.parse_file(settings.input_file)
-
-    except JSONDecodeError as err:
-        raise ValueError(
-            f"Invalid input file ({settings.input_file}) json format: {err}"
-        ) from err
-
-    except ValidationError as err:
-        raise ValueError(f"Invalid inputs for {service_func.__name__}: {err}") from err
-
-    # executes
-    returned_values = vfunc.execute(inputs)
-
-    # outputs (expected by sidecar)
-    # TODO: verify outputs match with expected?
-    # TODO: sync name
-    if not isinstance(returned_values, tuple):
-        returned_values = (returned_values,)
-
-    outputs = {
-        f"out_{index}": value for index, value in enumerate(returned_values, start=1)
-    }
-    settings.output_file.write_text(json.dumps(outputs))
