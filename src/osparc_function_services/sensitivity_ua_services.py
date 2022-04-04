@@ -2,10 +2,14 @@ from typing import List, Tuple
 
 from .sensitivity_ua import linear_regression, myfunc
 
+# TODO:
+#services = ServicesRegistry()
 
 def sensitivity_ua_test_func(*, x: List[float]) -> float:
     return myfunc(x)
 
+
+#@services.add(return_outputs=["refval", "sensitivity", "linearity"])
 
 def sensitivity_ua_linear_regression(
     *,
@@ -30,5 +34,3 @@ def sensitivity_ua_linear_regression(
     )
     return refval, sensitivity, linearity
 
-
-# entrypoints

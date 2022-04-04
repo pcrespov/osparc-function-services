@@ -69,7 +69,7 @@ def run_as_service(service_func: Callable):
     try:
 
         settings = Settings()
-        log.info("Settings setup by sidecar", settings.json(indent=1))
+        log.info("Settings setup by sidecar %s", settings.json(indent=1))
 
         inputs: BaseModel = vfunc.model.parse_file(settings.input_file)
 
