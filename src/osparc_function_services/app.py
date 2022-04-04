@@ -28,7 +28,7 @@ class Settings(BaseSettings):
 
     @validator("INPUT_FOLDER", "OUTPUT_FOLDER", "LOG_FOLDER")
     def check_dir_existance(cls, v):
-        if not v.exists():
+        if v is None or not v.exists():
             raise ValueError(
                 f"Folder {v} does not exists."
                 "Expected predefined and created by sidecar"
@@ -36,9 +36,9 @@ class Settings(BaseSettings):
         return v
 
     @validator("INPUT_FOLDER")
-    def check_input_dir(cls, v: Path):
-        f = v / "inputs.json"
-        if not f.exists():
+    def check_input_dir(cls, v):
+        f = v / "inputs.json" if v else None
+        if f is None or not f.exists():
             raise ValueError(
                 f"File {f} does not exists."
                 "Expected predefined and created by sidecar"
