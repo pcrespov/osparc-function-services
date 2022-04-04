@@ -27,6 +27,7 @@ build-nc: ## docker-compose build (no cache)
 shell: ## docker-compose run ... bash
 	$(eval TMP := $(shell mktemp -d))
 	mkdir -p $(TMP)/inputs
+	echo '{"x": [1,2,3]}' > $(TMP)/inputs/inputs.json
 	mkdir -p $(TMP)/outputs
 	docker-compose run \
 		-e "INPUT_FOLDER=/inputs" \
