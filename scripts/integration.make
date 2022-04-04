@@ -16,9 +16,12 @@ docker-compose.yml: ## (re)create docker-compose
 	ooil compose
 
 
-.PHONY: build shell push
+.PHONY: build build-nc shell push
 build: ## docker-compose build
 	docker-compose build
+
+build-nc: ## docker-compose build (no cache)
+	docker-compose build --no-cache
 
 
 shell: ## docker-compose run ... bash
