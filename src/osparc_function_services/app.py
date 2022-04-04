@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     SIMCORE_MEMORY_BYTES_LIMIT: Optional[int] = None
     SIMCORE_NANO_CPUS_LIMIT: Optional[int] = None
 
-    @validator("INPUT_FOLDER", "OUTPUT_FOLDER", "LOG_FOLDER")
+    @validator("INPUT_FOLDER", "OUTPUT_FOLDER")
     def check_dir_existance(cls, v):
         if v is None or not v.exists():
             raise ValueError(
