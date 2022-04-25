@@ -10,6 +10,7 @@ from osparc_function_services.sensitivity_ua_services import (
     sensitivity_ua_linear_regression,
     sensitivity_ua_test_func,
 )
+from osparc_function_services.demo_services import demo_func
 from pydantic import BaseModel
 from pydantic.decorator import ValidatedFunction
 from pytest import MonkeyPatch
@@ -57,7 +58,8 @@ def test_setup_execution_teardown(service_func: Callable, sidecar_setup_env: Non
 
 
 @pytest.mark.parametrize(
-    "service_func", (sensitivity_ua_test_func, sensitivity_ua_linear_regression)
+    "service_func",
+    (sensitivity_ua_test_func, sensitivity_ua_linear_regression, demo_func),
 )
 def test_create_meta(service_func: Callable, dot_osparc_folder: Path):
     """tests and produces ./osparc/*/metadata.yml files for every function-service"""

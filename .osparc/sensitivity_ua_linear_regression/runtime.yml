@@ -1,5 +1,8 @@
 # see https://shipyard.run/docs/resources/container/#command
 settings:
-  - name: command
-    type: "[]string"
-    value: ["ofs", "linear-regression"]
+  - name: ContainerSpec
+    type: "ContainerSpec"
+    value: Command:
+      ["ofs", "linear-regression"]
+
+# https://docs.docker.com/engine/api/v1.41/#operation/ServiceCreate
