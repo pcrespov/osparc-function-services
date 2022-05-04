@@ -1,0 +1,62 @@
+version: '3.7'
+services:
+  ofs-sensitivity_ua_linear_regression:
+    build:
+      context: ./
+      dockerfile: docker/Dockerfile
+      args:
+        VERSION: 1.0.0
+      labels:
+        io.simcore.name: '{"name": "ofs-sensitivity_ua_linear_regression"}'
+        io.simcore.thumbnail: '{"thumbnail": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Test.svg/315px-Test.svg.png"}'
+        io.simcore.description: '{"description": ""}'
+        io.simcore.key: '{"key": "simcore/services/comp/ofs-sensitivity_ua_linear_regression"}'
+        io.simcore.version: '{"version": "1.0.0"}'
+        io.simcore.integration-version: '{"integration-version": "1.0.0"}'
+        io.simcore.type: '{"type": "computational"}'
+        io.simcore.authors: '{"authors": [{"name": "Pedro Crespo-Valero", "email": "crespo@itis.swiss", "affiliation": "IT''IS Foundation"}]}'
+        io.simcore.contact: '{"contact": "crespo@itis.swiss"}'
+        io.simcore.inputs: '{"inputs": {"dimension_index": {"label": "dimension_index", "description": "Dimension index", "type": "ref_contentSchema", "contentSchema": {"title": "Dimension_index", "type": "integer"}}, "paramrefs": {"label": "paramrefs", "description": "Paramrefs", "type": "ref_contentSchema", "contentSchema": {"title": "Paramrefs", "type": "array", "items": {"type": "number"}}}, "paramtestplus": {"label": "paramtestplus", "description": "Paramtestplus", "type": "ref_contentSchema", "contentSchema": {"title": "Paramtestplus", "type": "array", "items": {"type": "number"}}}, "paramtestminus": {"label": "paramtestminus", "description": "Paramtestminus", "type": "ref_contentSchema", "contentSchema": {"title": "Paramtestminus", "type": "array", "items": {"type": "number"}}}, "refval": {"label": "refval", "description": "Refval", "type": "ref_contentSchema", "contentSchema": {"title": "Refval", "type": "number"}}, "testvalplus": {"label": "testvalplus", "description": "Testvalplus", "type": "ref_contentSchema", "contentSchema": {"title": "Testvalplus", "type": "number"}}, "testvalminus": {"label": "testvalminus", "description": "Testvalminus", "type": "ref_contentSchema", "contentSchema": {"title": "Testvalminus", "type": "number"}}, "lin_or_power": {"label": "lin_or_power", "description": "Lin or power", "type": "ref_contentSchema", "contentSchema": {"title": "Lin_or_power", "type": "boolean"}}}}'
+        io.simcore.outputs: '{"outputs": {"out_1": {"label": "Out1 number", "description": "", "type": "ref_contentSchema", "contentSchema": {"title": "Out1 number", "type": "number"}}, "out_2": {"label": "Out2 number", "description": "", "type": "ref_contentSchema", "contentSchema": {"title": "Out2 number", "type": "number"}}, "out_3": {"label": "Out3 number", "description": "", "type": "ref_contentSchema", "contentSchema": {"title": "Out3 number", "type": "number"}}}}'
+        simcore.service.settings: '[{"name": "ContainerSpec", "type": "ContainerSpec", "value": {"Command": ["ofs", "linear-regression"]}}]'
+    image: registry:5000/simcore/services/comp/ofs-sensitivity_ua_linear_regression:1.0.0
+  ofs-demo_func:
+    build:
+      context: ./
+      dockerfile: docker/Dockerfile
+      args:
+        VERSION: 1.0.0
+      labels:
+        io.simcore.name: '{"name": "ofs-demo_func"}'
+        io.simcore.thumbnail: '{"thumbnail": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Test.svg/315px-Test.svg.png"}'
+        io.simcore.description: '{"description": ""}'
+        io.simcore.key: '{"key": "simcore/services/comp/ofs-demo_func"}'
+        io.simcore.version: '{"version": "1.0.0"}'
+        io.simcore.integration-version: '{"integration-version": "1.0.0"}'
+        io.simcore.type: '{"type": "computational"}'
+        io.simcore.authors: '{"authors": [{"name": "Pedro Crespo-Valero", "email": "crespo@itis.swiss", "affiliation": "IT''IS Foundation"}]}'
+        io.simcore.contact: '{"contact": "crespo@itis.swiss"}'
+        io.simcore.inputs: '{"inputs": {"index": {"label": "index", "description": "Index", "type": "ref_contentSchema", "contentSchema": {"title": "Index", "type": "integer"}}, "real_value": {"label": "real_value", "description": "Real value", "type": "ref_contentSchema", "contentSchema": {"title": "Real_value", "type": "number"}}, "complex_value": {"label": "complex_value", "description": "Complex value", "type": "ref_contentSchema", "contentSchema": {"title": "Complex_value", "$ref": "#/definitions/Complex", "definitions": {"Complex": {"title": "Complex", "type": "object", "properties": {"real": {"title": "Real", "default": 0.0, "type": "number"}, "imag": {"title": "Imag", "default": 0.0, "type": "number"}}}}}}}}'
+        io.simcore.outputs: '{"outputs": {"out_1": {"label": "Out1 integer", "description": "", "type": "ref_contentSchema", "contentSchema": {"title": "Out1 integer", "type": "integer"}}, "out_2": {"label": "Out2 number", "description": "", "type": "ref_contentSchema", "contentSchema": {"title": "Out2 number", "type": "number"}}, "out_3": {"label": "Out3 <class ''osparc_function_services.demo_services.Complex''>", "description": "", "type": "ref_contentSchema", "contentSchema": {"title": "Out3 <class ''osparc_function_services.demo_services.Complex''>", "$ref": "#/definitions/Complex", "definitions": {"Complex": {"title": "Complex", "type": "object", "properties": {"real": {"title": "Real", "default": 0.0, "type": "number"}, "imag": {"title": "Imag", "default": 0.0, "type": "number"}}}}}}}}'
+        simcore.service.settings: '[{"name": "ContainerSpec", "type": "ContainerSpec", "value": {"Command": ["ofs", "demo"]}}]'
+    image: registry:5000/simcore/services/comp/ofs-demo_func:1.0.0
+  ofs-sensitivity_ua_test_func:
+    build:
+      context: ./
+      dockerfile: docker/Dockerfile
+      args:
+        VERSION: 1.0.0
+      labels:
+        io.simcore.name: '{"name": "ofs-sensitivity_ua_test_func"}'
+        io.simcore.thumbnail: '{"thumbnail": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Test.svg/315px-Test.svg.png"}'
+        io.simcore.description: '{"description": ""}'
+        io.simcore.key: '{"key": "simcore/services/comp/ofs-sensitivity_ua_test_func"}'
+        io.simcore.version: '{"version": "1.0.0"}'
+        io.simcore.integration-version: '{"integration-version": "1.0.0"}'
+        io.simcore.type: '{"type": "computational"}'
+        io.simcore.authors: '{"authors": [{"name": "Pedro Crespo-Valero", "email": "crespo@itis.swiss", "affiliation": "IT''IS Foundation"}]}'
+        io.simcore.contact: '{"contact": "crespo@itis.swiss"}'
+        io.simcore.inputs: '{"inputs": {"x": {"label": "x", "description": "X", "type": "ref_contentSchema", "contentSchema": {"title": "X", "type": "array", "items": {"type": "number"}}}}}'
+        io.simcore.outputs: '{"outputs": {"out_1": {"label": "Out1 number", "description": "", "type": "ref_contentSchema", "contentSchema": {"title": "Out1 number", "type": "number"}}}}'
+        simcore.service.settings: '[{"name": "ContainerSpec", "type": "ContainerSpec", "value": {"Command": ["ofs", "test-func"]}}]'
+    image: registry:5000/simcore/services/comp/ofs-sensitivity_ua_test_func:1.0.0

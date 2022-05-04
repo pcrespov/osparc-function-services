@@ -1,0 +1,7 @@
+settings:
+  - name: ContainerSpec
+    type: ContainerSpec
+    value: 
+      Command:
+        - "ofs"
+        - "demo"

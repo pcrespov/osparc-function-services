@@ -1,0 +1,82 @@
+name: ofs-demo_func
+thumbnail: https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Test.svg/315px-Test.svg.png
+description: ''
+key: simcore/services/comp/ofs-demo_func
+version: 1.0.0
+integration-version: 1.0.0
+type: computational
+authors:
+- name: Pedro Crespo-Valero
+  email: crespo@itis.swiss
+  affiliation: IT'IS Foundation
+contact: crespo@itis.swiss
+inputs:
+  index:
+    label: index
+    description: Index
+    type: ref_contentSchema
+    contentSchema:
+      title: Index
+      type: integer
+  real_value:
+    label: real_value
+    description: Real value
+    type: ref_contentSchema
+    contentSchema:
+      title: Real_value
+      type: number
+  complex_value:
+    label: complex_value
+    description: Complex value
+    type: ref_contentSchema
+    contentSchema:
+      title: Complex_value
+      $ref: '#/definitions/Complex'
+      definitions:
+        Complex:
+          title: Complex
+          type: object
+          properties:
+            real:
+              title: Real
+              default: 0.0
+              type: number
+            imag:
+              title: Imag
+              default: 0.0
+              type: number
+outputs:
+  out_1:
+    label: Out1 integer
+    description: ''
+    type: ref_contentSchema
+    contentSchema:
+      title: Out1 integer
+      type: integer
+  out_2:
+    label: Out2 number
+    description: ''
+    type: ref_contentSchema
+    contentSchema:
+      title: Out2 number
+      type: number
+  out_3:
+    label: Out3 <class 'osparc_function_services.demo_services.Complex'>
+    description: ''
+    type: ref_contentSchema
+    contentSchema:
+      title: Out3 <class 'osparc_function_services.demo_services.Complex'>
+      $ref: '#/definitions/Complex'
+      definitions:
+        Complex:
+          title: Complex
+          type: object
+          properties:
+            real:
+              title: Real
+              default: 0.0
+              type: number
+            imag:
+              title: Imag
+              default: 0.0
+              type: number
