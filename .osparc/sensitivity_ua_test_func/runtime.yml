@@ -1,4 +1,7 @@
 settings:
-  - name: Cmd
-    type: array
-    value: [ofs,  test-func]
+  - name: ContainerSpec
+    type: ContainerSpec
+    value: 
+      Command:
+        - "ofs"
+        - "test-func"

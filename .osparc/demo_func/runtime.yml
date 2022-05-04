@@ -4,4 +4,4 @@ settings:
     value: 
       Command:
         - "ofs"
-        - "linear-regression"
+        - "demo"
