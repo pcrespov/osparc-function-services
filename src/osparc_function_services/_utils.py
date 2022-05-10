@@ -1,16 +1,7 @@
 import inspect
 from copy import deepcopy
 from inspect import Parameter, Signature
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Final,
-    Mapping,
-    Tuple,
-    get_args,
-    get_origin,
-)
+from typing import Any, Callable, Dict, Final, Mapping, Tuple, get_args, get_origin
 
 from pydantic.tools import schema_of
 
@@ -61,6 +52,37 @@ def _name_type(parameter_annotation):
     return name
 
 
+def _replace_value_in_dict(item: Any, original_schema: dict[str, Any]):
+    # Taken from https://github.com/samuelcolvin/pydantic/issues/889#issuecomment-850312496
+
+    if isinstance(item, list):
+        return [_replace_value_in_dict(i, original_schema) for i in item]
+    elif isinstance(item, dict):
+        if "$ref" in item.keys():
+            definitions = item["$ref"][2:].split("/")
+            res = original_schema.copy()
+            for definition in definitions:
+                res = res[definition]
+            return res
+        else:
+            return {
+                key: _replace_value_in_dict(i, original_schema)
+                for key, i in item.items()
+            }
+    else:
+        return item
+
+
+def _resolve_refs(schema: dict[str, Any]) -> dict[str, Any]:
+    if "$ref" in str(schema):
+        # NOTE: this is a minimal solution that cannot cope e.g. with
+        # the most generic $ref with might be URLs. For that we will be using
+        # directly jsonschema python package's resolver in the near future.
+        # In the meantime we can live with this
+        return _replace_value_in_dict(deepcopy(schema), deepcopy(schema.copy()))
+    return schema
+
+
 def validate_inputs(parameters: Mapping[str, Parameter]) -> Dict[str, Any]:
     inputs = {}
     for parameter in parameters.values():
@@ -76,7 +98,6 @@ def validate_inputs(parameters: Mapping[str, Parameter]) -> Dict[str, Any]:
         )
 
         # FIXME: files are represented differently!
-
         content_schema = schema_of(
             parameter.annotation,
             title=parameter.name.capitalize(),
@@ -86,7 +107,7 @@ def validate_inputs(parameters: Mapping[str, Parameter]) -> Dict[str, Any]:
             "label": parameter.name,
             "description": description,
             "type": "ref_contentSchema",
-            "contentSchema": content_schema,
+            "contentSchema": _resolve_refs(content_schema),
         }
 
         if parameter.default != Parameter.empty:
@@ -121,14 +142,12 @@ def validate_outputs(return_annotation: Any) -> Dict[str, Any]:
         name = f"out_{index}"
 
         display_name = f"Out{index} {_name_type(return_type)}"
+        content_schema = schema_of(return_type, title=display_name)
         data = {
             "label": display_name,
             "description": "",
             "type": "ref_contentSchema",
-            "contentSchema": schema_of(
-                return_type,
-                title=display_name,
-            ),
+            "contentSchema": _resolve_refs(content_schema),
         }
         outputs[name] = data
     return outputs
