@@ -17,8 +17,9 @@ def demo_func(
     index: conint(ge=1),
     real_value: confloat(multiple_of=2),
     string_value: constr(min_length=3),
-    list_of_numbers: list[float],
-    flag: bool = False,  # complex_value: Complex
+    list_of_numbers: list[confloat(ge=0)],
+    flag: bool = False,
+    # complex_value: Complex
 ) -> Tuple[int, float, bool]:
     print("Inputs")
     print(f"{index=}")

@@ -6,7 +6,7 @@ from .sensitivity_ua import linear_regression, myfunc
 # services = ServicesRegistry()
 
 
-def sensitivity_ua_test_func(*, x: List[float]) -> float:
+def sensitivity_ua_test_func(*, x: list[float]) -> float:
     return myfunc(x)
 
 
