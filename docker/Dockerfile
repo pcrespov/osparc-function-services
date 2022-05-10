@@ -1,4 +1,4 @@
-FROM python:3.8.10-slim as base
+FROM python:3.9.12-slim as base
 
 ARG VERSION
 
