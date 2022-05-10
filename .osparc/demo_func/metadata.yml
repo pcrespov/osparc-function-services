@@ -30,21 +30,19 @@ inputs:
     description: Complex value
     type: ref_contentSchema
     contentSchema:
-      title: Complex_value
-      $ref: '#/definitions/Complex'
-      definitions:
-        Complex:
-          title: Complex
-          type: object
-          properties:
-            real:
-              title: Real
-              default: 0.0
-              type: number
-            imag:
-              title: Imag
-              default: 0.0
-              type: number
+      title: Complex
+      type: object
+      properties:
+        real:
+          title: Real
+          description: This is the real part
+          default: 0.0
+          type: number
+        imag:
+          title: Imag
+          default: 0.0
+          minimum: 0.0
+          type: number
 outputs:
   out_1:
     label: Out1 integer
@@ -65,18 +63,16 @@ outputs:
     description: ''
     type: ref_contentSchema
     contentSchema:
-      title: Out3 <class 'osparc_function_services.demo_services.Complex'>
-      $ref: '#/definitions/Complex'
-      definitions:
-        Complex:
-          title: Complex
-          type: object
-          properties:
-            real:
-              title: Real
-              default: 0.0
-              type: number
-            imag:
-              title: Imag
-              default: 0.0
-              type: number
+      title: Complex
+      type: object
+      properties:
+        real:
+          title: Real
+          description: This is the real part
+          default: 0.0
+          type: number
+        imag:
+          title: Imag
+          default: 0.0
+          minimum: 0.0
+          type: number
