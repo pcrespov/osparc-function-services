@@ -1,3 +1,15 @@
 {
-    "python.formatting.provider": "black"
+    "python.formatting.provider": "black",
+    "files.associations": {
+        ".*rc": "ini",
+        ".env*": "ini",
+        "*.logs*": "log",
+        "*.make": "makefile",
+        "**/requirements/*.in": "pip-requirements",
+        "**/requirements/*.txt": "pip-requirements",
+        "*logs.txt": "log",
+        "*Makefile": "makefile",
+        "docker-compose*.yml": "dockercompose",
+        "Dockerfile*": "dockerfile"
+    },
 }
