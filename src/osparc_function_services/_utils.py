@@ -53,12 +53,15 @@ def _name_type(parameter_annotation):
 
 
 def _replace_value_in_dict(item: Any, original_schema: dict[str, Any]):
-    # Taken from https://github.com/samuelcolvin/pydantic/issues/889#issuecomment-850312496
+    #
+    # Taken and adapted from https://github.com/samuelcolvin/pydantic/issues/889#issuecomment-850312496
+    # TODO: check https://github.com/gazpachoking/jsonref
 
     if isinstance(item, list):
         return [_replace_value_in_dict(i, original_schema) for i in item]
     elif isinstance(item, dict):
         if "$ref" in item.keys():
+            # Limited to something like "$ref": "#/definitions/Engine"
             definitions = item["$ref"][2:].split("/")
             res = original_schema.copy()
             for definition in definitions:
