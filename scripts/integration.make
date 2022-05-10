@@ -42,3 +42,6 @@ shell: ## docker-compose run ... bash
 
 push: ## docker-compose push (to registry:5000)
 	docker-compose push
+
+inspect-image: ## inspects image .Config
+	for i in $(shell cat docker-compose.yml| yq '.services.*.image'); do echo $$i; docker image inspect $$i | jq '.[0].Config'; done
