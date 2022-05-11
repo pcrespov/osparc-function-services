@@ -56,5 +56,5 @@ clean: ## cleans all unversioned files in project and temp files create by this 
 
 
 
-include ./scripts/integration.make
+include ./scripts/docker.make
 include ./scripts/registry.make
