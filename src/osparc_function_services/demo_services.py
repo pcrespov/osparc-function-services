@@ -1,15 +1,19 @@
 import time
+from enum import Enum
 from numbers import Complex
 from typing import Tuple
 
-from pydantic import BaseModel, Field, constr, confloat, conint
-
-# Units validated against https://github.com/hgrecco/pint/blob/master/pint/default_en.txt
+from pydantic import BaseModel, Field, confloat, conint, constr
 
 
 class Complex(BaseModel):
     real: float = Field(0.0, description="This is the real part")
     imag: float = Field(0.0, ge=0.0)
+
+
+class Answers(str, Enum):
+    YES = "YES"
+    NO = "NO"
 
 
 def demo_func(
@@ -19,8 +23,11 @@ def demo_func(
     string_value: constr(min_length=3),
     list_of_numbers: list[confloat(ge=0)],
     flag: bool = False,
-    # complex_value: Complex
+    answer: Answers = "NO",
+    complex_value: Complex,
 ) -> Tuple[int, float, bool]:
+
+    # Some fake implementation
     print("Inputs")
     print(f"{index=}")
     print(f"{real_value=}")
