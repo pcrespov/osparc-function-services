@@ -1,7 +1,17 @@
 import inspect
 from copy import deepcopy
 from inspect import Parameter, Signature
-from typing import Any, Callable, Dict, Final, Mapping, Tuple, get_args, get_origin
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Final,
+    Mapping,
+    Optional,
+    Tuple,
+    get_args,
+    get_origin,
+)
 
 from pydantic.tools import schema_of
 
@@ -175,3 +185,28 @@ def create_meta(func: Callable, service_version: str) -> MetaDict:
     meta["outputs"] = outputs
 
     return meta
+
+
+def define_service(
+    version: str,
+    outputs: dict[str, Any],
+    name: Optional[str] = None,
+    description: Optional[str] = None,
+    authors: Optional[list] = None,
+    contact: Optional[str] = None,
+    thumbnail: Optional[str] = None,
+):
+    # TODO: sync with create_meta
+    def _decorator(func: Callable):
+        service_name = f"{_PACKAGE_NAME}-{name or func.__name__}"
+
+        meta = deepcopy(_TEMPLATE_META)
+        meta["name"] = service_name
+        meta["key"] = f"simcore/services/comp/ofs-{func.__name__}"
+        meta["version"] = version
+
+        meta["outputs"] = outputs
+        func.__meta__ = meta
+        return func
+
+    return _decorator
