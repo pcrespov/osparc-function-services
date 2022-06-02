@@ -1,14 +1,14 @@
 name: ofs-demo_func
 thumbnail: https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Test.svg/315px-Test.svg.png
-description: ''
+description: ""
 key: simcore/services/comp/ofs-demo_func
 version: 1.0.0
 integration-version: 1.0.0
 type: computational
 authors:
-- name: Pedro Crespo-Valero
-  email: crespo@itis.swiss
-  affiliation: IT'IS Foundation
+  - name: Pedro Crespo-Valero
+    email: crespo@itis.swiss
+    affiliation: IT'IS Foundation
 contact: crespo@itis.swiss
 inputs:
   index:
@@ -17,6 +17,7 @@ inputs:
     type: ref_contentSchema
     contentSchema:
       title: Index
+      minimum: 1
       type: integer
   real_value:
     label: real_value
@@ -24,59 +25,83 @@ inputs:
     type: ref_contentSchema
     contentSchema:
       title: Real_value
+      multipleOf: 2
       type: number
+  string_value:
+    label: string_value
+    description: String value
+    type: ref_contentSchema
+    contentSchema:
+      title: String_value
+      minLength: 3
+      type: string
+  list_of_numbers:
+    label: list_of_numbers
+    description: List of numbers
+    type: ref_contentSchema
+    contentSchema:
+      title: List_of_numbers
+      type: array
+      items:
+        type: number
+        minimum: 0
+  flag:
+    label: flag
+    description: Flag
+    type: ref_contentSchema
+    contentSchema:
+      title: Flag
+      type: boolean
+    defaultValue: false
+  answer:
+    label: answer
+    description: Answer
+    type: ref_contentSchema
+    contentSchema:
+      title: Answers
+      description: An enumeration.
+      enum:
+        - "YES"
+        - "NO"
+      type: string
+    defaultValue: "NO"
   complex_value:
     label: complex_value
     description: Complex value
     type: ref_contentSchema
     contentSchema:
-      title: Complex_value
-      $ref: '#/definitions/Complex'
-      definitions:
-        Complex:
-          title: Complex
-          type: object
-          properties:
-            real:
-              title: Real
-              default: 0.0
-              type: number
-            imag:
-              title: Imag
-              default: 0.0
-              type: number
+      title: Complex
+      type: object
+      properties:
+        real:
+          title: Real
+          description: This is the real part
+          default: 0.0
+          type: number
+        imag:
+          title: Imag
+          default: 0.0
+          minimum: 0.0
+          type: number
 outputs:
   out_1:
     label: Out1 integer
-    description: ''
+    description: ""
     type: ref_contentSchema
     contentSchema:
       title: Out1 integer
       type: integer
   out_2:
     label: Out2 number
-    description: ''
+    description: ""
     type: ref_contentSchema
     contentSchema:
       title: Out2 number
       type: number
   out_3:
-    label: Out3 <class 'osparc_function_services.demo_services.Complex'>
-    description: ''
+    label: Out3 integer
+    description: ""
     type: ref_contentSchema
     contentSchema:
-      title: Out3 <class 'osparc_function_services.demo_services.Complex'>
-      $ref: '#/definitions/Complex'
-      definitions:
-        Complex:
-          title: Complex
-          type: object
-          properties:
-            real:
-              title: Real
-              default: 0.0
-              type: number
-            imag:
-              title: Imag
-              default: 0.0
-              type: number
+      title: Out3 integer
+      type: boolean

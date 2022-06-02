@@ -59,10 +59,10 @@ else
     usermod --uid "$HOST_USERID" --gid "$HOST_GROUPID" "$SC_USER_NAME"
 
     echo "$INFO" " Changing group properties of files around from $SC_USER_ID to group $CONTAINER_GROUP"
-    find / -path /proc -prune -o -group "$SC_USER_ID" -exec chgrp --no-dereference "$CONTAINER_GROUP" {} \;
+    find / -path /proc -prune -o -path /sys -prune -o -group "$SC_USER_ID" -exec chgrp --no-dereference "$CONTAINER_GROUP" {} \;
     # change user property of files already around
     echo "$INFO" " Changing ownership properties of files around from $SC_USER_ID to group $CONTAINER_GROUP"
-    find / -path /proc -prune -o -user "$SC_USER_ID" -exec chown --no-dereference "$SC_USER_NAME" {} \;
+    find / -path /proc -prune -o -path /sys -prune -o -user "$SC_USER_ID" -exec chown --no-dereference "$SC_USER_NAME" {} \;
 fi
 
 echo "$INFO" " Starting $* ..."

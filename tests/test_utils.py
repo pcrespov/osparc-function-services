@@ -5,15 +5,17 @@ from typing import Callable
 
 import pytest
 import yaml
+from pydantic import BaseModel
+from pydantic.decorator import ValidatedFunction
+from pydantic.json import pydantic_encoder
+from pytest import MonkeyPatch
+
 from osparc_function_services._utils import create_meta
+from osparc_function_services.demo_services import demo_func
 from osparc_function_services.sensitivity_ua_services import (
     sensitivity_ua_linear_regression,
     sensitivity_ua_test_func,
 )
-from osparc_function_services.demo_services import demo_func
-from pydantic import BaseModel
-from pydantic.decorator import ValidatedFunction
-from pytest import MonkeyPatch
 
 
 @pytest.fixture
@@ -65,7 +67,7 @@ def test_create_meta(service_func: Callable, dot_osparc_folder: Path):
     """tests and produces ./osparc/*/metadata.yml files for every function-service"""
 
     meta = create_meta(service_func, service_version="1.0.0")
-    print(json.dumps(meta, indent=1))
+    print(json.dumps(meta, indent=1, default=pydantic_encoder))
 
     # https://docs.docker.com/engine/reference/commandline/tag/#extended-description
     tag = f"ITISFoundation/{meta['key']}:{meta['version']}"
